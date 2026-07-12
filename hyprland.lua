@@ -28,4 +28,5 @@ hl.config({
 })
 
 -- For Noctalia Color templates
-require("modules.noctalia").apply_theme()
+require("noctalia").apply_theme()
+
