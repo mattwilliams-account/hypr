@@ -37,6 +37,7 @@ hl.workspace_rule({
 	workspace = "1",
 	monitor = "HDMI-A-1",
 	default = true,
+    layout = "scrolling",
 })
 
 hl.workspace_rule({
