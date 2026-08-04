@@ -27,6 +27,11 @@ hl.config({
     },
 })
 
+-- disable ps5 controller from acting like a mouse (will need a second one if using bluetooth <hyprctl devices to find out>)
+hl.device({
+    name = "sony-interactive-entertainment-dualsense-wireless-controller-touchpad",
+    enabled = false,
+})
+
 -- For Noctalia Color templates
 require("noctalia").apply_theme()
-
