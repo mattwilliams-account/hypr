@@ -6,7 +6,7 @@
 local terminal    = "kitty"
 local fileManager = "pcmanfm"
 local menu        = "rofi -show drun -show-icons"
-local browser     = "helium"
+local browser     = "zen"
 local screenShot = "flameshot gui --clipboard --path ~/Documents/'Obsidian Vault'/attachments"
 ---------------------
 ---- KEYBINDINGS ----
