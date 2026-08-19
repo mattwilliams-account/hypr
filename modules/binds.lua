@@ -38,10 +38,6 @@ hl.bind(     -- exclusive fullscreen
     secMod .. " + F",
     hl.dsp.window.fullscreen({ mode = 0 })
 )
-hl.bind(     -- maximize but not fullscreen
-    mainMod .. " + V",
-    hl.dsp.window.fullscreen({mode = 1})
-)
 -- Switch workspaces with mainMod + [0-9]
 -- Move active window to a workspace with mainMod + SHIFT + [0-9]
 for i = 1, 10 do
@@ -82,3 +78,68 @@ hl.bind("XF86AudioNext",  hl.dsp.exec_cmd("playerctl next"),       { locked = tr
 hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioPlay",  hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = true })
+
+-- Function to toggle maximize and push other windows aside
+local SNAP_WIDTHS = { 0.333, 0.5, 0.667 }
+local DEFAULT_WIDTH = 0.5
+local MOVE_DIR = "move -col" -- change to "move +col" if restore scrolls wrong way
+local MAX_SCROLL_STEPS = 12
+local TOL = 0.2
+
+local saved = {} -- address -> {width, anchor}
+
+local function dims(w) -- get the active monitor's dimesions
+    local mon = w.monitor
+    if not mon then return nil end
+    local mon_x = (mon.position and (mon.position.x or mon.position[1])) or mon.x or 0
+    local mon_w = mon.width or mon.w or (mon.size and (mon.size.x or mon.size[1]))
+    local win_x = (w.at and (w.at.x or w.at[1])) or (w.position and (w.position.x or w.position[1])) or w.x
+    local win_w = w.width or w.w or (w.size and (w.size.x or w.size[1]))
+    if not (mon_w and win_x and win_w) or mon_w == 0 then return nil end
+    return { width = win_w / mon_w, anchor = (win_x - mon_x) / mon_w }
+end
+
+local function snap(width)
+    local best, best_dist = DEFAULT_WIDTH, math.huge
+    for _, v in ipairs(SNAP_WIDTHS) do
+        local d = math.abs(width - v)
+        if d < best_dist then best, best_dist = v, d end
+    end
+    return best
+end
+
+-- to set maximize to toggle back to predifined size instead of saved size add to call arguments toggle_maximize_column(0.66)
+local function toggle_maximize_column()
+    local w = hl.get_active_window()
+    if w == nil then return end
+    local addr = w.address
+
+    if addr and saved[addr] then
+        local s = saved[addr]
+        saved[addr] = nil
+        hl.dispatch(hl.dsp.layout("colresize " .. tostring(s.width)))
+        local target = s.anchor or 0
+        if target > TOL then
+            local last = -1
+            for _ = 1, MAX_SCROLL_STEPS do
+                local cw = hl.get_active_window()
+                local d = cw and dims(cw)
+                local cur = d and d.anchor
+                if not cur or cur >= target - TOL then break end
+                if math.abs(cur - last) < 0.004 then break end
+                last = cur
+                hl.dispatch(hl.dsp.layout(MOVE_DIR))
+            end
+        end
+    else
+        local d = dims(w)
+        if addr then
+            saved[addr] = { width = d and snap(d.width) or DEFAULT_WIDTH, anchor = d and d.anchor or 0 }
+        end
+        hl.dispatch(hl.dsp.layout("colresize 1.0"))
+    end
+end
+hl.bind(     -- maximize but not fullscreen
+    mainMod .. " + V",
+    toggle_maximize_column
+)
