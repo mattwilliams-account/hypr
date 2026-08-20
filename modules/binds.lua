@@ -22,8 +22,9 @@ hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + space", hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))    -- dwindle only
-hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("qs -c noctalia-shell ipc call sessionMenu toggle"))
-hl.bind(mainMod .. "+ X", hl.dsp.exec_cmd("noctalia msg panel-toggle session"))
+--hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("qs -c noctalia-shell ipc call sessionMenu toggle"))
+hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("noctalia msg panel-toggle session"))
+hl.bind(mainMod .. " + Z", hl.dsp.exec_cmd("zeditor"))
 
 -- Move focus with mainMod + arrow keys
 hl.bind(mainMod .. " + left",  hl.dsp.focus({ direction = "left" }))
@@ -47,6 +48,15 @@ hl.bind(
 hl.bind(
     secMod .. " + V",
     hl.dsp.layout("colresize 0.5")
+)
+-- width of window .75 of screen
+hl.bind(
+    secMod .. " + X",
+    hl.dsp.layout("colresize 0.75")
+)
+hl.bind(
+    secMod .. " + Z",
+    hl.dsp.layout("colresize 0.25")
 )
 -- Switch workspaces with mainMod + [0-9]
 -- Move active window to a workspace with mainMod + SHIFT + [0-9]
